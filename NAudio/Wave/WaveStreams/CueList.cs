@@ -155,17 +155,20 @@ namespace NAudio.Wave
             }
 
             string[] labels = new string[cueCount];
-            int labelLength = 0;
-
-            var labelChunkId = ChunkIdentifier.ChunkIdentifierToInt32("labl");
-            for (int p = 4; listChunkData.Length - p >= 16; p += labelLength + labelLength % 2 + 12)
+            if (listChunkData != null)
             {
-                if (BitConverter.ToInt32(listChunkData, p) == labelChunkId)
+                int labelLength = 0;
+
+                var labelChunkId = ChunkIdentifier.ChunkIdentifierToInt32("labl");
+                for (int p = 4; listChunkData.Length - p >= 16; p += labelLength + labelLength % 2 + 12)
                 {
-                    labelLength = BitConverter.ToInt32(listChunkData, p + 4) - 4;
-                    var cueId = BitConverter.ToInt32(listChunkData, p + 8);
-                    cue = cueIndex[cueId];
-                    labels[cue] = Encoding.UTF8.GetString(listChunkData, p + 12, labelLength - 1);
+                    if (BitConverter.ToInt32(listChunkData, p) == labelChunkId)
+                    {
+                        labelLength = BitConverter.ToInt32(listChunkData, p + 4) - 4;
+                        var cueId = BitConverter.ToInt32(listChunkData, p + 8);
+                        cue = cueIndex[cueId];
+                        labels[cue] = Encoding.UTF8.GetString(listChunkData, p + 12, labelLength - 1);
+                    }
                 }
             }
 
@@ -272,7 +275,7 @@ namespace NAudio.Wave
                     listChunkData = reader.GetChunkData(chunk);
                 }
             }
-            if (cueChunkData != null && listChunkData != null)
+            if (cueChunkData != null)
             {
                 cueList = new CueList(cueChunkData, listChunkData);
             }
